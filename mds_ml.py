@@ -5,7 +5,10 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import seaborn as sns
 from plotly.subplots import make_subplots
+from scipy import interpolate
+from scipy.spatial import ConvexHull
 from sklearn import metrics
+from sklearn.cluster import KMeans
 from sklearn.metrics import mean_squared_error, classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LinearRegression
@@ -215,4 +218,41 @@ def plot_regression(data, y_pred, idx, tot_plots, num_cols, title):
     plt.plot(data['x'], data['y'], '.')
     plt.title(title)
     
-    
+##########################################################
+def plot_kmeans_cluster(x, y, clusters):
+    kmeans = KMeans(n_clusters = clusters, random_state=0)
+    df = pd.DataFrame(np.column_stack([x,y]), columns=['x','y'])
+    df['cluster'] = kmeans.fit_predict(df[['x', 'y']])
+    all_colors = ["red", "coral", "gold", "yellowgreen", "green", "mediumaquamarine",
+                  "mediumturquoise", "cornflowerblue", "blue", "purple"]
+    df['c'] = df['cluster'].apply(lambda x: all_colors[int(x)])
+
+    # get centroids
+    centroids = kmeans.cluster_centers_
+    cen_x = [i[0] for i in centroids] 
+    cen_y = [i[1] for i in centroids]
+
+    fig, ax = plt.subplots(1, figsize=(8,8))
+    plt.scatter(df.x, df.y, c=df.c, alpha = 0.6, s=10)
+    plt.scatter(cen_x, cen_y, marker='^', s=70)
+        
+    for i in df.cluster.unique():
+        # get the convex hull
+        points = df[df.cluster == i][['x', 'y']].values
+        hull = ConvexHull(points)
+        x_hull = np.append(points[hull.vertices,0],
+                        points[hull.vertices,0][0])
+        y_hull = np.append(points[hull.vertices,1],
+                        points[hull.vertices,1][0])
+        # plot shape
+        plt.fill(x_hull, y_hull, alpha=0.3, c=all_colors[i])
+        # interpolate
+        # dist = np.sqrt((x_hull[:-1] - x_hull[1:])**2 + (y_hull[:-1] - y_hull[1:])**2)
+        # dist_along = np.concatenate(([0], dist.cumsum()))
+        # spline, u = interpolate.splprep([x_hull, y_hull], 
+        #                                 u=dist_along, s=0)
+        # interp_d = np.linspace(dist_along[0], dist_along[-1], 50)
+        # interp_x, interp_y = interpolate.splev(interp_d, spline)
+        # plot shape
+        # plt.fill(interp_x, interp_y, '--', c=all_colors[i], alpha=0.2)
+    return df
