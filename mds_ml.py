@@ -1,9 +1,10 @@
 import math
 import pandas as pd
 import numpy as np
+import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-import seaborn as sns
+import plotly.express as px
 from plotly.subplots import make_subplots
 from scipy import interpolate
 from scipy.spatial import ConvexHull
@@ -126,7 +127,7 @@ def plot_confusion_matrix(y_real, y_pred):
     plt.ylabel('Actual label')
     plt.xlabel('Predicted label')
 
-    print(f'TP - True Negative: {cmat[0,0]}')
+    print(f'TN - True Negative: {cmat[0,0]}')
     print(f'FP - False Positive: {cmat[0,1]}')
     print(f'FN - False Negative: {cmat[1,0]}')
     print(f'TP - True Positive: {cmat[1,1]}')
@@ -256,3 +257,61 @@ def plot_kmeans_cluster(x, y, clusters):
         # plot shape
         # plt.fill(interp_x, interp_y, '--', c=all_colors[i], alpha=0.2)
     return df
+
+def plot_svc_decision_function(model, ax=None, plot_support=True):
+    """Plot the decision function for a 2D SVC"""
+    if ax is None:
+        ax = plt.gca()
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+    
+    # create grid to evaluate model
+    x = np.linspace(xlim[0], xlim[1], 30)
+    y = np.linspace(ylim[0], ylim[1], 30)
+    Y, X = np.meshgrid(y, x)
+    xy = np.vstack([X.ravel(), Y.ravel()]).T
+    P = model.decision_function(xy).reshape(X.shape)
+    
+    # plot decision boundary and margins
+    ax.contour(X, Y, P, colors='k',
+               levels=[-1, 0, 1], alpha=0.5,
+               linestyles=['--', '-', '--'])
+    
+    # plot support vectors
+    if plot_support:
+        ax.scatter(model.support_vectors_[:, 0],
+                   model.support_vectors_[:, 1],
+                   s=300, linewidth=1, facecolors='none');
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+    
+def plot_log_reg(x, y, data, clf, xmin=None, xmax=None, alpha=1, ax=None):
+    if ax is None:
+        fig, ax = plt.subplots()
+    else:
+        fig = ax.figure
+    ax.scatter(data[x], data[y], color='black', zorder=20, alpha=alpha)
+    if xmin is None:
+        xmin = x.min()
+    if xmax is None:
+        xmax = x.max()
+    X_test = np.linspace(xmin, xmax, 300)
+
+    loss = scipy.special.expit(X_test * clf.coef_ + clf.intercept_).ravel()
+    ax.plot(X_test, loss, linewidth=3)
+
+    ax.set_xlabel(x)
+    ax.set_ylabel(y)
+    fig.tight_layout()
+    sns.despine()
+    return fig, ax    
+
+#############################################   
+# plot error rate
+def plot_error_rate(errors):
+    plt.figure(figsize=(12, 6))
+    plt.plot(range(1, 40), errors, color='red', linestyle='dashed', marker='o',
+             markerfacecolor='blue', markersize=10)
+    plt.title('Error Rate K Value')
+    plt.xlabel('K Value')
+    plt.ylabel('Mean Error')        
