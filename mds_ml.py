@@ -135,7 +135,7 @@ def plot_confusion_matrix(y_real, y_pred):
     print(f'Misclassification Rate: {np.divide(np.sum([cmat[0,1],cmat[1,0]]),np.sum(cmat)):.3f}')
 
 ##########################################################
-# display ROC curve
+# visualizza al ROC curve
 def plot_roc_curve(y_real, y_pred):
     fpr, tpr, _ = metrics.roc_curve(y_real,  y_pred)
     auc = metrics.roc_auc_score(y_real, y_pred)
@@ -170,6 +170,7 @@ def search_best_estimator(estimator, param_grid, train_x, train_y, folds=3):
     return best_estimator
 
 ##########################################################
+# applica l'estimator e calcola RMSE su Train e Test. Ritorna R2 Score
 def evaluate_estimator(estimator, train_x, train_y, test_x, test_y):
     # Ottenimento delle predizioni (train) e calcolo RMSE
     train_y_pred = estimator.predict(train_x)
@@ -186,6 +187,7 @@ def evaluate_estimator(estimator, train_x, train_y, test_x, test_y):
     return test_y_pred
 
 ##########################################################
+# x, x_2, x_3, ... x_power
 def x_poly(data, power):
     predictors=['x']
     if power>=2:
@@ -195,7 +197,7 @@ def x_poly(data, power):
     return x
     
 ##########################################################
-# Return the result in pre-defined format
+# Ritorna un array con [r2, rmse, rss, intercept, coefficienti]
 def regression_metrics(reg, x, y, y_pred):    
     rmse = np.sqrt(mean_squared_error(y, y_pred))
     r2 = reg.score(x, y)
@@ -247,15 +249,6 @@ def plot_kmeans_cluster(x, y, clusters):
                         points[hull.vertices,1][0])
         # plot shape
         plt.fill(x_hull, y_hull, alpha=0.3, c=all_colors[i])
-        # interpolate
-        # dist = np.sqrt((x_hull[:-1] - x_hull[1:])**2 + (y_hull[:-1] - y_hull[1:])**2)
-        # dist_along = np.concatenate(([0], dist.cumsum()))
-        # spline, u = interpolate.splprep([x_hull, y_hull], 
-        #                                 u=dist_along, s=0)
-        # interp_d = np.linspace(dist_along[0], dist_along[-1], 50)
-        # interp_x, interp_y = interpolate.splev(interp_d, spline)
-        # plot shape
-        # plt.fill(interp_x, interp_y, '--', c=all_colors[i], alpha=0.2)
     return df
 
 def plot_svc_decision_function(model, ax=None, plot_support=True):
