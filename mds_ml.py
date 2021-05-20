@@ -170,20 +170,21 @@ def search_best_estimator(estimator, param_grid, train_x, train_y, folds=3):
     return best_estimator
 
 ##########################################################
-# applica l'estimator e calcola RMSE su Train e Test. Ritorna R2 Score
+# applica l'estimator e calcola RMSE root-mean-square error 
+# su Train e Test. Ritorna R2 Score
 def evaluate_estimator(estimator, train_x, train_y, test_x, test_y):
     # Ottenimento delle predizioni (train) e calcolo RMSE
     train_y_pred = estimator.predict(train_x)
     rmse = np.sqrt(mean_squared_error(train_y, train_y_pred))
-    print(f'Train RMSE: {rmse:.3f}') 
+    print(f'Train RMSE: {rmse:.4f}') 
 
     # Ottenimento delle predizioni (test) e calcolo RMSE
     test_y_pred = estimator.predict(test_x)
     rmse = np.sqrt(mean_squared_error(test_y, test_y_pred))
-    print(f'Test RMSE: {rmse:.3f}') 
+    print(f'Test (RMSE): {rmse:.4f}') 
     
     # R2 score
-    print(f'R2 score: {estimator.score(test_x, test_y):.3f}')
+    print(f'R2 score: {estimator.score(test_x, test_y):.4f}')
     return test_y_pred
 
 ##########################################################
