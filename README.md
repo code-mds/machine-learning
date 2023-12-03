@@ -1,2 +1,2 @@
-# machine-learning
-SUPSI - Esercizi di Machine Learning in Python
+# SUPSI - Machine Learning
+Esercizi di Machine Learning in Python
